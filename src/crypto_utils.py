@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+import os
+import re
 
 def pgcde(a, b):
     """ pgcd étendu avec les 2 coefficients de bézout u et v
@@ -29,3 +31,32 @@ def pgcd(a,b):
         r=a%b
         a,b=b,r
     return a
+
+def genKey(nb_bytes):
+    key = os.urandom(nb_bytes)
+    # print (":".join("{:02x}".format(ord(c)) for c in rand)) # python2
+    key_hex = key.hex()
+    print (':'.join(a+b for a,b in zip(key_hex[::2], key_hex[1::2])))
+    return key
+
+def parseKey(printed_key):
+    if type(re.match('^([0-9a-f]{2}:)*[0-9a-f]{2}$', printed_key)) is not None:
+        hexa = rand_hex.replace(":", "")
+        return binascii.unhexlify(hexa)
+    else:
+        print ("Wrong key structure")
+        return None
+
+def bin2hex(binStr):
+    return binStr.hex()
+
+def hex2bin(hexStr):
+    return binascii.unhexlify(hexStr)
+
+
+"""
+rotation binaire:
+lien :  http://python.jpvweb.com/python/mesrecettespython/doku.php?id=binaire
+        https://gist.github.com/cincodenada/6557582
+        https://www.geeksforgeeks.org/rotate-bits-of-an-integer/
+"""
