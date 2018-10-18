@@ -3,6 +3,11 @@
 import os
 import re
 
+from math import floor, sqrt
+try: 
+    long
+except NameError: 
+    long = int
 
 """
     Test de miller-rabin
@@ -89,21 +94,31 @@ def exp_rapide(a, n):
         m = m //2
     return r 
 
-def factorize(val):
-    global _known_primes
-    factor = []
-    while not is_prime(int(val)):
-        print (val)
-        i = 0
-        while val % _known_primes[i] != 0:
-            i += 1
-            if i == len(_known_primes):
-                _known_primes.extend([x for x in range(_known_primes[i-1] + 2, _known_primes[i-1]*10 + 1, 2) if is_prime(x)])
-        factor.append(_known_primes[i])
-        val =  int(val / _known_primes[i])
+def fac(n):
+    step = lambda x: 1 + (x<<2) - ((x>>1)<<1)
+    maxq = long(floor(sqrt(n)))
+    d = 1
+    q = n % 2 == 0 and 2 or 3 
+    while q <= maxq and n % q != 0:
+        q = step(d)
+        d += 1
+    return q <= maxq and [q] + fac(n//q) or [n]
 
-    factor.append(int(val))
-    return factor
+# def factorize(val):
+#     global _known_primes
+#     factor = []
+#     while not is_prime(int(val)):
+#         # print (val)
+#         i = 0
+#         while val % _known_primes[i] != 0:
+#             i += 1
+#             if i == len(_known_primes):
+#                 _known_primes.extend([x for x in range(_known_primes[i-1] + 2, _known_primes[i-1]*10 + 1, 2) if is_prime(x)])
+#         factor.append(_known_primes[i])
+#         val =  int(val / _known_primes[i])
+
+#     factor.append(int(val))
+#     return factor
 
 #=========================================================
 
@@ -161,12 +176,77 @@ def bytes_ror(bts, r_bits):
     temp = ror(temp, r_bits , len(bts)*8)
     return int2bytes(temp, len(bts))
 
-def bytes_or(bts1, bts2):
+def bytes_or_bytes(bts1, bts2):
     return int2bytes(bytes2int(bts1) | bytes2int(bts2), len(bts1))
 
-def bytes_and(bts1, bts2):
+def bytes_and_bytes(bts1, bts2):
     return int2bytes(bytes2int(bts1) & bytes2int(bts2), len(bts1))
 
-def bytes_or(bts1, bts2):
+def bytes_xor_bytes(bts1, bts2):
     return int2bytes(bytes2int(bts1) ^ bytes2int(bts2), len(bts1))
+
+def bytes_or_int(bts1, val):
+    return int2bytes(bytes2int(bts1) | val, len(bts1))
+
+def bytes_and_int(bts1, val):
+    return int2bytes(bytes2int(bts1) & val, len(bts1))
+
+def bytes_xor_int(bts1, val):
+    return int2bytes(bytes2int(bts1) ^ val, len(bts1))
+
+#===========================================
+
+"""
+Block cypher mode
+"""
+
+def ECB(function, file_in, file_out, chunk_size, key):
+    with open(file_in, 'rb') as f:
+        s = open(file_out, 'wb')
+        for chunk in iter(lambda: f.read(chunk_size), b''):
+            s.write(function(chunk,key))
+        s.close()
+
+class CBC(object):
+    """docstring for CBC"""
+
+    @staticmethod
+    def cypher(function, file_in, file_out, chunk_size, key, init_vector):
+        if not isinstance(init_vector, bytes):
+            raise TypeError("init_vector must be set to bytes")
+        if not isinstance(key, bytes):
+            raise TypeError("key must be set to bytes")
+        if len(init_vector) != chunk_size:
+            raise ValueError("init_vector must be the same size of the chunk size")
+        if len(key) != chunk_size:
+            raise ValueError("key must be the same size of the chunk size")
+
+        with open(file_in, 'rb') as f:
+            s = open(file_out, 'wb')
+            last_bytes = init_vector
+            for chunk in iter(lambda: f.read(chunk_size), b''):
+                chunk = bytes_xor_bytes(chunk, last_bytes)
+                last_bytes = function(chunk,key)
+                s.write(last_bytes)
+            s.close()
+
+    @staticmethod
+    def decypher(function, file_in, file_out, chunk_size, key, init_vector): #ToDo
+        if not isinstance(init_vector, bytes):
+            raise TypeError("init_vector must be set to bytes")
+        if not isinstance(key, bytes):
+            raise TypeError("key must be set to bytes")
+        if len(init_vector) != chunk_size:
+            raise ValueError("init_vector must be the same size of the chunk size")
+        if len(key) != chunk_size:
+            raise ValueError("key must be the same size of the chunk size")
+
+        with open(file_in, 'rb') as f:
+            s = open(file_out, 'wb')
+            last_chunk = init_vector
+            for chunk in iter(lambda: f.read(chunk_size), b''):
+                chunk_decyph = function(chunk,key)
+                s.write(bytes_xor_bytes(last_chunk, chunk_decyph))
+                last_chunk = chunk
+            s.close()
 
