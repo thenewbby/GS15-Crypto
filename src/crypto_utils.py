@@ -250,3 +250,47 @@ class CBC(object):
                 last_chunk = chunk
             s.close()
 
+class PCBC(object):
+    """docstring for PCBC"""
+
+    @staticmethod
+    def cypher(function, file_in, file_out, chunk_size, key, init_vector):
+        if not isinstance(init_vector, bytes):
+            raise TypeError("init_vector must be set to bytes")
+        if not isinstance(key, bytes):
+            raise TypeError("key must be set to bytes")
+        if len(init_vector) != chunk_size:
+            raise ValueError("init_vector must be the same size of the chunk size")
+        if len(key) != chunk_size:
+            raise ValueError("key must be the same size of the chunk size")
+
+        with open(file_in, 'rb') as f:
+            s = open(file_out, 'wb')
+            last_bytes = init_vector
+            for chunk in iter(lambda: f.read(chunk_size), b''):
+                chunk_xor = bytes_xor_bytes(chunk, last_bytes)
+                last_bytes = function(chunk_xor,key)
+                s.write(last_bytes)
+                last_bytes = bytes_xor_bytes(last_bytes, chunk)
+            s.close()
+
+    @staticmethod
+    def decypher(function, file_in, file_out, chunk_size, key, init_vector):
+        if not isinstance(init_vector, bytes):
+            raise TypeError("init_vector must be set to bytes")
+        if not isinstance(key, bytes):
+            raise TypeError("key must be set to bytes")
+        if len(init_vector) != chunk_size:
+            raise ValueError("init_vector must be the same size of the chunk size")
+        if len(key) != chunk_size:
+            raise ValueError("key must be the same size of the chunk size")
+
+        with open(file_in, 'rb') as f:
+            s = open(file_out, 'wb')
+            last_chunk = init_vector
+            for chunk in iter(lambda: f.read(chunk_size), b''):
+                chunk_decyph = function(chunk,key)
+                chunk_decyph = bytes_xor_bytes(last_chunk, chunk_decyph)
+                s.write(chunk_decyph)
+                last_chunk = bytes_xor_bytes(chunk, chunk_decyph)
+            s.close()
