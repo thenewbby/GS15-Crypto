@@ -83,6 +83,16 @@ def pgcd(a,b):
         a,b=b,r
     return a
 
+def bytes_inv(bts, modulo):
+    val = bytes2int(bts)
+
+    r, u, v = pgcde(val, modulo)
+
+    if r == 1:
+        return u
+    else :
+        return None
+
 def exp_rapide(a, n):
     """exponentiation rapide (calcul de a^n). Version itérative"""
     b, m = a, n
@@ -138,6 +148,11 @@ def parseKey(printed_key):
         print ("Wrong key structure")
         return None
 
+def bytesToString(byt):
+    key_hex = byt.hex()
+    print (':'.join(a+b for a,b in zip(key_hex[::2], key_hex[1::2])))
+
+
 def bin2hex(binStr):
     return binStr.hex()
 
@@ -149,6 +164,7 @@ def bytes2int(bts):
 
 def int2bytes(val, nb_bytes):
     return val.to_bytes(nb_bytes, byteorder='big')
+
 
 """
 rotation binaire:
@@ -194,10 +210,18 @@ def bytes_and_int(bts1, val):
 def bytes_xor_int(bts1, val):
     return int2bytes(bytes2int(bts1) ^ val, len(bts1))
 
+def bytes_times_int(bts1, val):
+    return int2bytes((bytes2int(bts1)*val) % (exp_rapide(2,len(bts1)*8) + 1),len(bts1))
+
+def bytes_plus_bytes(bts1, bts2):
+    return int2bytes((bytes2int(bts1) + bytes2int(bts2)) % exp_rapide(2,len(bts1)*8),len(bts1))
+
+def bytes_minus_bytes(bts1, bts2):
+    return int2bytes((bytes2int(bts1) - bytes2int(bts2)) % exp_rapide(2,len(bts1)*8),len(bts1))
 #===========================================
 
 """
-Block cypher mode
+Block cipher mode
 """
 
 def ECB(function, file_in, file_out, chunk_size, key):
@@ -211,15 +235,13 @@ class CBC(object):
     """docstring for CBC"""
 
     @staticmethod
-    def cypher(function, file_in, file_out, chunk_size, key, init_vector):
+    def cipher(function, file_in, file_out, chunk_size, key, init_vector):
         if not isinstance(init_vector, bytes):
             raise TypeError("init_vector must be set to bytes")
         if not isinstance(key, bytes):
             raise TypeError("key must be set to bytes")
         if len(init_vector) != chunk_size:
             raise ValueError("init_vector must be the same size of the chunk size")
-        if len(key) != chunk_size:
-            raise ValueError("key must be the same size of the chunk size")
 
         with open(file_in, 'rb') as f:
             s = open(file_out, 'wb')
@@ -231,15 +253,13 @@ class CBC(object):
             s.close()
 
     @staticmethod
-    def decypher(function, file_in, file_out, chunk_size, key, init_vector): #ToDo
+    def decipher(function, file_in, file_out, chunk_size, key, init_vector): #ToDo
         if not isinstance(init_vector, bytes):
             raise TypeError("init_vector must be set to bytes")
         if not isinstance(key, bytes):
             raise TypeError("key must be set to bytes")
         if len(init_vector) != chunk_size:
             raise ValueError("init_vector must be the same size of the chunk size")
-        if len(key) != chunk_size:
-            raise ValueError("key must be the same size of the chunk size")
 
         with open(file_in, 'rb') as f:
             s = open(file_out, 'wb')
@@ -254,15 +274,13 @@ class PCBC(object):
     """docstring for PCBC"""
 
     @staticmethod
-    def cypher(function, file_in, file_out, chunk_size, key, init_vector):
+    def cipher(function, file_in, file_out, chunk_size, key, init_vector):
         if not isinstance(init_vector, bytes):
             raise TypeError("init_vector must be set to bytes")
         if not isinstance(key, bytes):
             raise TypeError("key must be set to bytes")
         if len(init_vector) != chunk_size:
             raise ValueError("init_vector must be the same size of the chunk size")
-        if len(key) != chunk_size:
-            raise ValueError("key must be the same size of the chunk size")
 
         with open(file_in, 'rb') as f:
             s = open(file_out, 'wb')
@@ -275,15 +293,13 @@ class PCBC(object):
             s.close()
 
     @staticmethod
-    def decypher(function, file_in, file_out, chunk_size, key, init_vector):
+    def decipher(function, file_in, file_out, chunk_size, key, init_vector):
         if not isinstance(init_vector, bytes):
             raise TypeError("init_vector must be set to bytes")
         if not isinstance(key, bytes):
             raise TypeError("key must be set to bytes")
         if len(init_vector) != chunk_size:
             raise ValueError("init_vector must be the same size of the chunk size")
-        if len(key) != chunk_size:
-            raise ValueError("key must be the same size of the chunk size")
 
         with open(file_in, 'rb') as f:
             s = open(file_out, 'wb')
