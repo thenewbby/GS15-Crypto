@@ -133,11 +133,12 @@ def fac(n):
 #=========================================================
 
 
-def genKey(nb_bytes):
+def genKey(nb_bytes, print_key=True):
     key = os.urandom(nb_bytes)
     # print (":".join("{:02x}".format(ord(c)) for c in rand)) # python2
     key_hex = key.hex()
-    print (':'.join(a+b for a,b in zip(key_hex[::2], key_hex[1::2])))
+    if print_key:
+        print (':'.join(a+b for a,b in zip(key_hex[::2], key_hex[1::2])))
     return key
 
 def parseKey(printed_key):
@@ -225,9 +226,13 @@ Block cipher mode
 """
 
 def ECB(function, file_in, file_out, chunk_size, key):
+    if not isinstance(key, bytes):
+        raise TypeError("key must be set to bytes")
     with open(file_in, 'rb') as f:
         s = open(file_out, 'wb')
         for chunk in iter(lambda: f.read(chunk_size), b''):
+            if len(chunk) != chunk_size:
+                chunk += bytes(chunk_size - len(chunk))
             s.write(function(chunk,key))
         s.close()
 
@@ -247,13 +252,15 @@ class CBC(object):
             s = open(file_out, 'wb')
             last_bytes = init_vector
             for chunk in iter(lambda: f.read(chunk_size), b''):
+                if len(chunk) != chunk_size:
+                    chunk += bytes(chunk_size - len(chunk))
                 chunk = bytes_xor_bytes(chunk, last_bytes)
                 last_bytes = function(chunk,key)
                 s.write(last_bytes)
             s.close()
 
     @staticmethod
-    def decipher(function, file_in, file_out, chunk_size, key, init_vector): #ToDo
+    def decipher(function, file_in, file_out, chunk_size, key, init_vector):
         if not isinstance(init_vector, bytes):
             raise TypeError("init_vector must be set to bytes")
         if not isinstance(key, bytes):
@@ -265,6 +272,8 @@ class CBC(object):
             s = open(file_out, 'wb')
             last_chunk = init_vector
             for chunk in iter(lambda: f.read(chunk_size), b''):
+                if len(chunk) != chunk_size:
+                    chunk += bytes(chunk_size - len(chunk))
                 chunk_decyph = function(chunk,key)
                 s.write(bytes_xor_bytes(last_chunk, chunk_decyph))
                 last_chunk = chunk
@@ -286,6 +295,8 @@ class PCBC(object):
             s = open(file_out, 'wb')
             last_bytes = init_vector
             for chunk in iter(lambda: f.read(chunk_size), b''):
+                if len(chunk) != chunk_size:
+                    chunk += bytes(chunk_size - len(chunk))
                 chunk_xor = bytes_xor_bytes(chunk, last_bytes)
                 last_bytes = function(chunk_xor,key)
                 s.write(last_bytes)
@@ -305,6 +316,8 @@ class PCBC(object):
             s = open(file_out, 'wb')
             last_chunk = init_vector
             for chunk in iter(lambda: f.read(chunk_size), b''):
+                if len(chunk) != chunk_size:
+                    chunk += bytes(chunk_size - len(chunk))
                 chunk_decyph = function(chunk,key)
                 chunk_decyph = bytes_xor_bytes(last_chunk, chunk_decyph)
                 s.write(chunk_decyph)
