@@ -7,27 +7,70 @@ import random
 # https://crypto.stackexchange.com/questions/9006/how-to-find-generator-g-in-a-cyclic-group
 
 def main ():
-	p, g = Diffie_Hellman()
+	# p,q, g = Diffie_Hellman()
 
-	secret_a = random.randint (2, 100)
-	secret_b = random.randint (2, 100)
+	# secret_a = random.randint (2, 100)
+	# secret_b = random.randint (2, 100)
 
-	A = g**secret_a % p
-	B = g**secret_b % p
+	# A = g**secret_a % p
+	# B = g**secret_b % p
 
-	B = B**secret_a % p
-	A = A**secret_b % p
+	# B = B**secret_a % p
+	# A = A**secret_b % p
 
+	# # print (A)
+	# # print (B)
+	# assert A == B
+
+	# A_hex = int2bytes(A, 128)
+	# print (A_hex)
+
+	DH_param, A, a = DH_gen_public_key()
+	# print (DH_param)
 	# print (A)
+	# print (a)
+	# print()
+	com_key_b, B, b =  DH_comm_estab_Bob(DH_param, A)
+	# print (com_key_b)
 	# print (B)
-	assert A == B
+	# print (b)
+	# print()
+	com_key_a = DH_comm_estab_Alice(DH_param, B, a)
 
-	A_hex = int2bytes(A, 128)
+	assert com_key_b == com_key_a
+	A_hex = int2bytes(com_key_a, 128)
 	print (A_hex)
+	
 
+	
+def DH_gen_public_key():
+	DH_param = Diffie_Hellman()
+	# private_key = random.randint (2, DH_param[1])
+	private_key = random.randint (2, 10)
+	# public_key = DH_param[1]**private_key % DH_param[0]
+	public_key = pow(DH_param[2], private_key, DH_param[0])
+	return DH_param, public_key, private_key
+
+def DH_comm_estab_Bob(DH_param, client_public_key):
+	# private_key = random.randint (2, DH_param[1])
+	private_key = random.randint (2, 10)
+	# pub_key = DH_param[2]**private_key % DH_param[0]
+	pub_key = pow(DH_param[2], private_key, DH_param[0])
+
+	# com_key = client_public_key**private_key % DH_param[0]
+	com_key = pow(client_public_key, private_key, DH_param[0])
+	return com_key, pub_key, private_key
+
+def DH_comm_estab_Alice(DH_param, server_pub_key, my_private_key):
+	# return server_pub_key**my_private_key % DH_param[0]
+	return pow(server_pub_key, my_private_key, DH_param[0])
+	# return B**secret_a % public_key[2]
+
+
+###########################################
 
 def Diffie_Hellman():
-	q,p = Schnorr_prime()
+	q,p = Schnorr_prime(64,128)
 	# print ("q : {}".format(q))
 	# print ("p : {}".format(p))
 	g = 1
@@ -39,33 +82,7 @@ def Diffie_Hellman():
 		# g = (h**expo)%p
 		g = pow (h, expo, p)
 	# print ("g : {}".format(g))
-	return p,g
-
-def Schnorr_prime():
-	# i = 1
-	q = 0
-	while True:
-		# q = bytes2int(genKey(3, False))
-		q = bytes2int(genKey(64, False))
-		# print (key)
-		# print (is_prime(key))
-		if is_prime(q):
-			break
-		# else:
-		# 	i += 1
-	# print (i)
-	p = 0
-	h = bytes2int(genKey(64, False))
-	# i = 0
-	while True:
-		p = h * q + 1
-		if is_prime(p):
-			break
-		else:
-			h = bytes2int(genKey(64, False))
-			# i += 1
-	# print (i)
-	return q,p
+	return (p,q,g)
 
 if __name__ == '__main__':
 	main()
