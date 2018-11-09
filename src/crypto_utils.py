@@ -131,7 +131,16 @@ def fac(n):
 #     return factor
 
 #=========================================================
-
+def getPrime(nb_bytes):
+    q = 0
+    while True:
+        # q = bytes2int(genKey(3, False))
+        q = bytes2int(genKey(nb_bytes, False))
+        # print (key)
+        # print (is_prime(key))
+        if is_prime(q):
+            break
+    return q
 
 def genKey(nb_bytes, print_key=True):
     key = os.urandom(nb_bytes)
@@ -140,6 +149,20 @@ def genKey(nb_bytes, print_key=True):
     if print_key:
         print (':'.join(a+b for a,b in zip(key_hex[::2], key_hex[1::2])))
     return key
+
+def Schnorr_prime(nb_small, nb_big):
+    q = getPrime(nb_small)
+
+    p = 0
+    h = bytes2int(genKey(nb_big - nb_small, False))
+    while True:
+
+        p = h * q + 1
+        if is_prime(p):
+            break
+        else:
+            h = bytes2int(genKey(nb_big - nb_small, False))
+    return q,p
 
 def parseKey(printed_key):
     if type(re.match('^([0-9a-f]{2}:)*[0-9a-f]{2}$', printed_key)) is not None:
