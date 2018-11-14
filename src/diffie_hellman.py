@@ -2,6 +2,7 @@
 
 from crypto_utils import *
 import random
+import inspect
 
 # https://www.baylon-industries.com/news/?p=1430
 # https://crypto.stackexchange.com/questions/9006/how-to-find-generator-g-in-a-cyclic-group
@@ -25,7 +26,7 @@ def main ():
 	# A_hex = int2bytes(A, 128)
 	# print (A_hex)
 
-	DH_param, A, a = DH_gen_public_key()
+	DH_param, A, a = DH_gen_keys()
 	# print (DH_param)
 	# print (A)
 	# print (a)
@@ -42,37 +43,47 @@ def main ():
 	print (A_hex)
 	
 
-	
-def DH_gen_public_key():
+
+def DH_gen_keys():
+	depth = get_depth()
+	print ("{}DH_gen_keys: function starting".format(depth*"\t"))
 	DH_param = Diffie_Hellman()
-	# private_key = random.randint (2, DH_param[1])
-	private_key = random.randint (2, 10)
+	print ("{}DH_gen_keys: generate private key".format(depth*"\t"))
+	private_key = random.randint (2, DH_param.q)
+	# private_key = random.randint (2, 10)
 	# public_key = DH_param[1]**private_key % DH_param[0]
-	public_key = pow(DH_param[2], private_key, DH_param[0])
+	print ("{}DH_gen_keys: generate public key".format(depth*"\t"))
+	public_key = pow(DH_param.g, private_key, DH_param.p)
 	return DH_param, public_key, private_key
 
 def DH_comm_estab_Bob(DH_param, client_public_key):
-	# private_key = random.randint (2, DH_param[1])
-	private_key = random.randint (2, 10)
+	private_key = random.randint (2, DH_param.q)
+	# private_key = random.randint (2, 10)
 	# pub_key = DH_param[2]**private_key % DH_param[0]
-	pub_key = pow(DH_param[2], private_key, DH_param[0])
+	pub_key = pow(DH_param.g, private_key, DH_param.p)
 
 	# com_key = client_public_key**private_key % DH_param[0]
-	com_key = pow(client_public_key, private_key, DH_param[0])
+	com_key = pow(client_public_key, private_key, DH_param.p)
 	return com_key, pub_key, private_key
 
 def DH_comm_estab_Alice(DH_param, server_pub_key, my_private_key):
 	# return server_pub_key**my_private_key % DH_param[0]
-	return pow(server_pub_key, my_private_key, DH_param[0])
+	return pow(server_pub_key, my_private_key, DH_param.p)
 	# return B**secret_a % public_key[2]
 
 
 ###########################################
 
 def Diffie_Hellman():
-	q,p = Schnorr_prime(64,128)
+	depth = get_depth()
+
+	print ("{}Diffie_Hellman: function starting".format(depth*"\t"))
+
+	# q,p = Schnorr_prime(64,128)
+	q,p = Schnorr_prime(7,14)
 	# print ("q : {}".format(q))
 	# print ("p : {}".format(p))
+	print ("{}Diffie_Hellman: generate g".format(depth*"\t"))
 	g = 1
 	while g == 1:
 		h = random.randint (2, p-1)
@@ -82,7 +93,7 @@ def Diffie_Hellman():
 		# g = (h**expo)%p
 		g = pow (h, expo, p)
 	# print ("g : {}".format(g))
-	return (p,q,g)
+	return DHParams(p,q,g)
 
 if __name__ == '__main__':
 	main()
