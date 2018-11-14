@@ -1,9 +1,24 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import os
 import re
+import inspect
 
 from math import floor, sqrt
+
+
+def get_depth():
+    return len(inspect.stack()) - 3
+
+class DHParams(object):
+    """docstring for ClassName"""
+    def __init__(self, p, q, g):
+        self.p = p
+        self.q = q
+        self.g = g
+
+        
+
 try: 
     long
 except NameError: 
@@ -86,10 +101,13 @@ def pgcd(a,b):
 def bytes_inv(bts, modulo):
     val = bytes2int(bts)
 
+    return inv(val, modulo)
+
+def inv(val, modulo):
     r, u, v = pgcde(val, modulo)
 
     if r == 1:
-        return u
+        return u%modulo
     else :
         return None
 
@@ -132,6 +150,9 @@ def fac(n):
 
 #=========================================================
 def getPrime(nb_bytes):
+    depth = get_depth()
+    print("{}getPrime: Generate a {} bytes long prime".format(depth*"\t",nb_bytes))
+
     q = 0
     while True:
         # q = bytes2int(genKey(3, False))
@@ -151,7 +172,11 @@ def genKey(nb_bytes, print_key=True):
     return key
 
 def Schnorr_prime(nb_small, nb_big):
+    depth = get_depth()
+    print("{}Schnorr_prime: Generate prime q".format(depth*"\t"))
     q = getPrime(nb_small)
+
+    print("{}Schnorr_prime: Generate prime p".format(depth*"\t"))
 
     p = 0
     h = bytes2int(genKey(nb_big - nb_small, False))
