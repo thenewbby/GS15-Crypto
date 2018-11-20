@@ -44,43 +44,40 @@ def main ():
 	
 
 
-def DH_gen_keys():
+def DH_gen_keys(lenth_q=64, lenth_p=128):
 	depth = get_depth()
 	print ("{}DH_gen_keys: function starting".format(depth*"\t"))
-	DH_param = Diffie_Hellman()
+	DH_param = Diffie_Hellman(lenth_q, lenth_p)
+	
 	print ("{}DH_gen_keys: generate private key".format(depth*"\t"))
-	private_key = random.randint (2, DH_param.q)
-	# private_key = random.randint (2, 10)
-	# public_key = DH_param[1]**private_key % DH_param[0]
+	private_key = random.randint (1, DH_param.q)
+
 	print ("{}DH_gen_keys: generate public key".format(depth*"\t"))
 	public_key = pow(DH_param.g, private_key, DH_param.p)
+	
 	return DH_param, public_key, private_key
 
 def DH_comm_estab_Bob(DH_param, client_public_key):
 	private_key = random.randint (2, DH_param.q)
-	# private_key = random.randint (2, 10)
-	# pub_key = DH_param[2]**private_key % DH_param[0]
+	
 	pub_key = pow(DH_param.g, private_key, DH_param.p)
 
-	# com_key = client_public_key**private_key % DH_param[0]
 	com_key = pow(client_public_key, private_key, DH_param.p)
+
 	return com_key, pub_key, private_key
 
 def DH_comm_estab_Alice(DH_param, server_pub_key, my_private_key):
-	# return server_pub_key**my_private_key % DH_param[0]
 	return pow(server_pub_key, my_private_key, DH_param.p)
-	# return B**secret_a % public_key[2]
 
 
 ###########################################
 
-def Diffie_Hellman():
+def Diffie_Hellman(lenth_q=64, lenth_p=128):
 	depth = get_depth()
 
 	print ("{}Diffie_Hellman: function starting".format(depth*"\t"))
 
-	# q,p = Schnorr_prime(64,128)
-	q,p = Schnorr_prime(7,14)
+	q,p = Schnorr_prime(lenth_q,lenth_p)
 	# print ("q : {}".format(q))
 	# print ("p : {}".format(p))
 	print ("{}Diffie_Hellman: generate g".format(depth*"\t"))
@@ -88,11 +85,7 @@ def Diffie_Hellman():
 	while g == 1:
 		h = random.randint (2, p-1)
 		expo = int((p-1)/q)
-		# print ((p-1)/q)
-		# print (h**((p-1)/q))
-		# g = (h**expo)%p
 		g = pow (h, expo, p)
-	# print ("g : {}".format(g))
 	return DHParams(p,q,g)
 
 if __name__ == '__main__':
