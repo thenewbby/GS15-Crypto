@@ -154,16 +154,21 @@ def getPrime(nb_bytes):
     print("{}getPrime: Generate a {} bytes long prime".format(depth*"\t",nb_bytes))
 
     q = 0
+    i = 0
     while True:
+        i += 1
         # q = bytes2int(genKey(3, False))
-        q = bytes2int(genKey(nb_bytes, False))
+        q = bytes2int(genKey(nb_bytes, False, i))
         # print (key)
         # print (is_prime(key))
         if is_prime(q):
+            print ('')
             break
     return q
 
-def genKey(nb_bytes, print_key=True):
+def genKey(nb_bytes, print_key=True, i=1):
+    depth = get_depth()
+    print("{}genKey: Generate a {} bytes long random number. try {}".format(depth*"\t",nb_bytes, i), end="\r")
     key = os.urandom(nb_bytes)
     # print (":".join("{:02x}".format(ord(c)) for c in rand)) # python2
     key_hex = key.hex()
@@ -179,14 +184,22 @@ def Schnorr_prime(nb_small, nb_big):
     print("{}Schnorr_prime: Generate prime p".format(depth*"\t"))
 
     p = 0
-    h = bytes2int(genKey(nb_big - nb_small, False))
+    i = 1
+    h = bytes2int(genKey(nb_big - nb_small, False, i))
     while True:
 
         p = h * q + 1
         if is_prime(p):
+            print ('')
             break
         else:
-            h = bytes2int(genKey(nb_big - nb_small, False))
+            i += 1
+            h = bytes2int(genKey(nb_big - nb_small, False, i))
+    # bytesToString(int2bytes(p,nb_big))
+    # print (is_prime(q))
+    # print (is_prime(p))
+    # print (1 < h < p)
+    # print (p - q*h)
     return q,p
 
 def parseKey(printed_key):
