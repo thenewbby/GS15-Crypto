@@ -25,14 +25,15 @@ def main():
 	# print ()
 
 	# bytesToString(int2bytes(p, 256))
-	print ("{}DSA: generate diffie_hellman keys".format(depth*"\t"))
-	DH_param, public_key, private_key = diffie_hellman.DH_gen_keys()
+	print ("{}DSA: generate diffie_helylman keys".format(depth*"\t"))
+	DH_param, public_key, private_key = diffie_hellman.DH_gen_keys(12,20)
 	print ("{}DSA: sign msg".format(depth*"\t"))
 	sign = DSA_sign(DH_param, private_key, msg)
 
 	print ("{}DSA: verify msg".format(depth*"\t"))
 	verif = DSA_verify(DH_param, public_key, sign, msg)
 	print (verif)
+
 
 
 def DSA_sign(DH_param, private_key, msg):
@@ -45,7 +46,7 @@ def DSA_sign(DH_param, private_key, msg):
 	print ("{}DSA_sign: generate s&r".format(depth*"\t"))
 	while s == 0:
 		while r == 0:
-			k = random.randint (1, DH_param.p-1)
+			k = random.randint (1, DH_param.q-1)
 			X = pow(DH_param.g, k, DH_param.p)
 			r = X % DH_param.q
 			# print("r : {}".format(r))
@@ -88,11 +89,7 @@ def DSA_verify(DH_param, public_key, DSA_sig, msg):
 	print ("v : {}".format(v))
 	print ("r : {}".format(DSA_sig.r))
 
-
-	if v == DSA_sig.r:
-		return True
-	else:
-		return False
+	return v == DSA_sig.r
 
 
 # used param(p,q,g) pub_key, priv_key
