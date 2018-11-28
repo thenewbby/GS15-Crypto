@@ -3,10 +3,11 @@
 from crypto_utils import *
 import random
 import inspect
+import sys
 
 # https://www.baylon-industries.com/news/?p=1430
 # https://crypto.stackexchange.com/questions/9006/how-to-find-generator-g-in-a-cyclic-group
-
+ERASE_LINE = '\x1b[2K'
 def main ():
 	# p,q, g = Diffie_Hellman()
 
@@ -82,10 +83,24 @@ def Diffie_Hellman(lenth_q=64, lenth_p=128):
 	# print ("p : {}".format(p))
 	print ("{}Diffie_Hellman: generate g".format(depth*"\t"))
 	g = 1
-	while g == 1:
-		h = random.randint (2, p-1)
-		expo = int((p-1)/q)
+	real_gen = False
+	# h = 2
+	expo = int((p-1)/q)
+	# print (expo)
+	while True :
+		h = random.randint (2, p-2)
 		g = pow (h, expo, p)
+		# if g!= 1:
+		# 	break
+		real_gen = (pow (g, q, p) == 1)
+		# sys.stdout.write(ERASE_LINE)
+		# print ("{}\t h: {}  real_gen : {}".format(depth*"\t", h, real_gen), end='\r')
+		# if g != 1 and real_gen:
+		if g != 1:
+			print("")
+			break
+		# else:
+		# 	h += 1
 	return DHParams(p,q,g)
 
 if __name__ == '__main__':

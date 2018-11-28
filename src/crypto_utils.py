@@ -169,10 +169,14 @@ def getPrime(nb_bytes):
 def genKey(nb_bytes, print_key=True, i=1):
     depth = get_depth()
     print("{}genKey: Generate a {} bytes long random number. try {}".format(depth*"\t",nb_bytes, i), end="\r")
-    key = os.urandom(nb_bytes)
+    while True:
+        key = os.urandom(nb_bytes)
+        if bytes2int(key) != 0:
+            break
+    # print(key, end='\r')
     # print (":".join("{:02x}".format(ord(c)) for c in rand)) # python2
-    key_hex = key.hex()
     if print_key:
+        key_hex = key.hex()
         print (':'.join(a+b for a,b in zip(key_hex[::2], key_hex[1::2])))
     return key
 
@@ -185,16 +189,21 @@ def Schnorr_prime(nb_small, nb_big):
 
     p = 0
     i = 1
-    h = bytes2int(genKey(nb_big - nb_small, False, i))
+    # h = bytes2int(genKey(nb_big - nb_small, False, i))
+    h = bytes2int(genKey(nb_big , False, i))
     while True:
 
-        p = h * q + 1
-        if is_prime(p):
+        # p = h * q + 1
+        p = h - ((h%(2*q) ) - 1)
+        # X-(X%(2*obj.q)-1)
+        if is_prime(p) and p != 1:
             print ('')
             break
         else:
             i += 1
-            h = bytes2int(genKey(nb_big - nb_small, False, i))
+            # h = bytes2int(genKey(nb_big - nb_small, False, i))
+            h = bytes2int(genKey(nb_big , False, i))
+    # print(int2bytes(p,nb_big))
     # bytesToString(int2bytes(p,nb_big))
     # print (is_prime(q))
     # print (is_prime(p))

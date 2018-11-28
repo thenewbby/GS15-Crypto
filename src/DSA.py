@@ -17,16 +17,11 @@ def main():
 	depth = get_depth()
 	print ("{}DSA: starting function".format(depth*"\t"))
 
-	msg = b"suprise mother fucking mother fucker. Hodbsdzlcdbjzmqdbldjvbldjbvaljdvllagdclkjn"
-	# q,p = Schnorr_prime(32,256)
-	# print (int2bytes(q, 32))
-	# bytesToString(int2bytes(q, 32))
+	msg = b"fnvopnpfaejiddffnjnjqmdknm"
 
-	# print ()
-
-	# bytesToString(int2bytes(p, 256))
 	print ("{}DSA: generate diffie_helylman keys".format(depth*"\t"))
-	DH_param, public_key, private_key = diffie_hellman.DH_gen_keys(12,20)
+	DH_param, public_key, private_key = diffie_hellman.DH_gen_keys(10,22) # CAN CHANGE SIZE OF q AND p
+
 	print ("{}DSA: sign msg".format(depth*"\t"))
 	sign = DSA_sign(DH_param, private_key, msg)
 
@@ -49,12 +44,21 @@ def DSA_sign(DH_param, private_key, msg):
 			k = random.randint (1, DH_param.q-1)
 			X = pow(DH_param.g, k, DH_param.p)
 			r = X % DH_param.q
+			# if r == 0:
+			# 	print("YOLO", end='\r')
 			# print("r : {}".format(r))
-
+		print 
 		k_inv = inv(k, DH_param.q)
+		if k_inv is None:
+			# print("NO invert")
+			continue
 		# print ("k_inv : {}".format(k_inv))
 
 		s = (k_inv*(h + private_key*r)) % DH_param.q
+		# if s == 0:
+		# 	print("SOLO {} {} {} {}".format(k_inv, private_key, r, DH_param.q), end='\r')
+
+		# print ("s : {}".format(s))
 
 	# print ("r : {}".format(r))
 	# print ("s : {}".format(s))
@@ -71,7 +75,7 @@ def DSA_verify(DH_param, public_key, DSA_sig, msg):
 	# if 1 < DSA_sig.s < DH_param.q-1:
 	# 	print ("s inside")
 
-	if not (1 < DSA_sig.r < DH_param.q-1 and 1 < DSA_sig.s < DH_param.q-1):
+	if not (1 <= DSA_sig.r < DH_param.q and 1 <= DSA_sig.s < DH_param.q):
 		return False
 
 	h = bytes2int(hashlib.sha256(msg).digest())
@@ -88,6 +92,12 @@ def DSA_verify(DH_param, public_key, DSA_sig, msg):
 
 	print ("v : {}".format(v))
 	print ("r : {}".format(DSA_sig.r))
+	print ()
+
+	print ("g^q : {}".format(pow(DH_param.g, DH_param.q, DH_param.p)))
+	Sr = int( (DH_param.p-1)/DH_param.q );
+	print ("g^r : {}".format(pow(DH_param.g, Sr, DH_param.p)))
+	print ("g^p : {}".format(pow(DH_param.g, DH_param.p-1, DH_param.p)))
 
 	return v == DSA_sig.r
 
