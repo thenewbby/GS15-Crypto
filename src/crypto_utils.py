@@ -3,6 +3,7 @@
 import os
 import re
 import inspect
+import random
 
 from math import floor, sqrt
 
@@ -180,7 +181,7 @@ def genKey(nb_bytes, print_key=True, i=1):
         print (':'.join(a+b for a,b in zip(key_hex[::2], key_hex[1::2])))
     return key
 
-def Schnorr_prime(nb_small, nb_big):
+def Schnorr_prime(nb_small, nb_big): # DEPRECIATED
     depth = get_depth()
     print("{}Schnorr_prime: Generate prime q".format(depth*"\t"))
     q = getPrime(nb_small)
@@ -210,6 +211,38 @@ def Schnorr_prime(nb_small, nb_big):
     # print (1 < h < p)
     # print (p - q*h)
     return q,p
+
+def Schnorr_group(nb_small, nb_big):
+    depth = get_depth()
+    print("{}Schnorr_group: Generate prime q".format(depth*"\t"))
+    q = getPrime(nb_small)
+
+    print("{}Schnorr_group: Generate prime p".format(depth*"\t"))
+
+    p = 0
+    i = 1
+    # r = bytes2int(genKey(nb_big - nb_small, False, i))
+    r = bytes2int(genKey(nb_big, False, i))
+    while True:
+
+        p = r * q + 1
+        # p = r - ((r % (2*q)) - 1)
+        if is_prime(p) and p != 1:
+            print('')
+            break
+        else:
+            i += 1
+            r = bytes2int(genKey(nb_big - nb_small, False, i))
+            # r = bytes2int(genKey(nb_big, False, i))
+
+    print ("{}Schnorr_group: generate g".format(depth*"\t"))
+    while True:
+        h = random.randint(2, p-2)
+
+        g = pow(h, r, p)
+        if g != 1:
+            break
+    return DHParams(p,q,g)
 
 def parseKey(printed_key):
     if type(re.match('^([0-9a-f]{2}:)*[0-9a-f]{2}$', printed_key)) is not None:

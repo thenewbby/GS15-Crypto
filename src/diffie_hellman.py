@@ -48,7 +48,7 @@ def main ():
 def DH_gen_keys(lenth_q=64, lenth_p=128):
 	depth = get_depth()
 	print ("{}DH_gen_keys: function starting".format(depth*"\t"))
-	DH_param = Diffie_Hellman(lenth_q, lenth_p)
+	DH_param = Schnorr_group(lenth_q, lenth_p)
 	
 	print ("{}DH_gen_keys: generate private key".format(depth*"\t"))
 	private_key = random.randint (1, DH_param.q)
@@ -73,7 +73,7 @@ def DH_comm_estab_Alice(DH_param, server_pub_key, my_private_key):
 
 ###########################################
 
-def Diffie_Hellman(lenth_q=64, lenth_p=128):
+def Diffie_Hellman(lenth_q=64, lenth_p=128): # DEPRECIATED
 	depth = get_depth()
 
 	print ("{}Diffie_Hellman: function starting".format(depth*"\t"))

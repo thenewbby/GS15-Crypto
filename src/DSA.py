@@ -20,14 +20,15 @@ def main():
 	msg = b"fnvopnpfaejiddffnjnjqmdknm"
 
 	print ("{}DSA: generate diffie_helylman keys".format(depth*"\t"))
-	DH_param, public_key, private_key = diffie_hellman.DH_gen_keys(10,22) # CAN CHANGE SIZE OF q AND p
+	DH_param, public_key, private_key = diffie_hellman.DH_gen_keys(32,256) # CAN CHANGE SIZE OF q AND p
 
 	print ("{}DSA: sign msg".format(depth*"\t"))
 	sign = DSA_sign(DH_param, private_key, msg)
 
 	print ("{}DSA: verify msg".format(depth*"\t"))
 	verif = DSA_verify(DH_param, public_key, sign, msg)
-	print (verif)
+	# print (verif)
+	assert verif
 
 
 
@@ -95,8 +96,8 @@ def DSA_verify(DH_param, public_key, DSA_sig, msg):
 	print ()
 
 	print ("g^q : {}".format(pow(DH_param.g, DH_param.q, DH_param.p)))
-	Sr = int( (DH_param.p-1)/DH_param.q );
-	print ("g^r : {}".format(pow(DH_param.g, Sr, DH_param.p)))
+	# Sr = (DH_param.p-1)//DH_param.q
+	# print ("g^r : {}".format(pow(DH_param.g, Sr, DH_param.p)))
 	print ("g^p : {}".format(pow(DH_param.g, DH_param.p-1, DH_param.p)))
 
 	return v == DSA_sig.r
