@@ -9,35 +9,19 @@ import sys
 # https://crypto.stackexchange.com/questions/9006/how-to-find-generator-g-in-a-cyclic-group
 ERASE_LINE = '\x1b[2K'
 def main ():
-	# p,q, g = Diffie_Hellman()
 
-	# secret_a = random.randint (2, 100)
-	# secret_b = random.randint (2, 100)
-
-	# A = g**secret_a % p
-	# B = g**secret_b % p
-
-	# B = B**secret_a % p
-	# A = A**secret_b % p
-
-	# # print (A)
-	# # print (B)
-	# assert A == B
-
-	# A_hex = int2bytes(A, 128)
-	# print (A_hex)
-
-	DH_param, A, a = DH_gen_keys()
+	# DH_param, A, a = DH_gen_keys()
+	alice_key = DH_gen_keys()
 	# print (DH_param)
 	# print (A)
 	# print (a)
 	# print()
-	com_key_b, B, b =  DH_comm_estab_Bob(DH_param, A)
+	com_key_b, B, b =  DH_comm_estab_Bob(alice_key.param, alice_key.public_key)
 	# print (com_key_b)
 	# print (B)
 	# print (b)
 	# print()
-	com_key_a = DH_comm_estab_Alice(DH_param, B, a)
+	com_key_a = DH_comm_estab_Alice(alice_key.param, B, alice_key.private_key)
 
 	assert com_key_b == com_key_a
 	A_hex = int2bytes(com_key_a, 128)
@@ -56,7 +40,7 @@ def DH_gen_keys(lenth_q=64, lenth_p=128):
 	print ("{}DH_gen_keys: generate public key".format(depth*"\t"))
 	public_key = pow(DH_param.g, private_key, DH_param.p)
 	
-	return DH_param, public_key, private_key
+	return Key(DH_param, public_key, private_key)
 
 def DH_comm_estab_Bob(DH_param, client_public_key):
 	private_key = random.randint (2, DH_param.q)

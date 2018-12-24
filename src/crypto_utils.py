@@ -17,9 +17,33 @@ class DHParams(object):
         self.p = p
         self.q = q
         self.g = g
+    def __repr__(self):
+        return "%s(p=%r, q=%r, g=%r)" % (
+            self.__class__.__name__, self.p, self.q, self.g)
 
+class Key(object):
+    """docstring for ClassName"""
+    def __init__(self, params, Pkey, pkey):
+        self.param = params
+        self.public_key = Pkey
+        self.private_key = pkey
+    def __repr__(self):
+        return "%s(param=%r, public_key=%r, private_key=%r)" % (
+            self.__class__.__name__, self.param, self.public_key, self.private_key)
         
 
+
+class DSASignature(object):
+    """docstring for DSASignature"""
+    def __init__(self, params, Pkey, r, s):
+        self.param = params
+        self.public_key = Pkey
+        self.r = r
+        self.s = s   
+    def __repr__(self):
+        return "%s(param=%r, public_key=%r, r=%r, s=%r)" % (
+            self.__class__.__name__, self.param, self.public_key, self.r, self.s)
+        
 try: 
     long
 except NameError: 
