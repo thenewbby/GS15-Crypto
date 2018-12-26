@@ -4,29 +4,41 @@ import os
 import re
 import inspect
 import random
+import yaml
 
 from math import floor, sqrt
 
 
 def get_depth():
+    """
+    @brief      Gets the depth of the function.
+    
+    @return     The depth.
+    """
     return len(inspect.stack()) - 3
 
 class DHParams(object):
-    """docstring for ClassName"""
+    """
+    Classe regroupant les paramètre p, q et g
+    """
     def __init__(self, p, q, g):
         self.p = p
         self.q = q
         self.g = g
+
     def __repr__(self):
         return "%s(p=%r, q=%r, g=%r)" % (
             self.__class__.__name__, self.p, self.q, self.g)
 
 class Key(object):
-    """docstring for ClassName"""
+    """
+    Classe regroupant les paramètres, la clé publique et privée
+    """
     def __init__(self, params, Pkey, pkey):
         self.param = params
         self.public_key = Pkey
         self.private_key = pkey
+
     def __repr__(self):
         return "%s(param=%r, public_key=%r, private_key=%r)" % (
             self.__class__.__name__, self.param, self.public_key, self.private_key)
@@ -34,7 +46,9 @@ class Key(object):
 
 
 class DSASignature(object):
-    """docstring for DSASignature"""
+    """
+    Classe regroupant les paramètres, la clé public utilisé, r et s généré par DSA
+    """
     def __init__(self, params, Pkey, r, s):
         self.param = params
         self.public_key = Pkey
@@ -43,7 +57,7 @@ class DSASignature(object):
     def __repr__(self):
         return "%s(param=%r, public_key=%r, r=%r, s=%r)" % (
             self.__class__.__name__, self.param, self.public_key, self.r, self.s)
-        
+
 try: 
     long
 except NameError: 
@@ -115,8 +129,15 @@ def pgcde(a, b):
     return (r, u, v)
 
 def pgcd(a,b):
-    """pgcd(a,b): calcul du 'Plus Grand Commun Diviseur' entre les 2 nombres entiers a et b
-        lien : http://python.jpvweb.com/python/mesrecettespython/doku.php?id=pgcd_ppcm
+    """
+    pgcd(a,b): calcul du 'Plus Grand Commun Diviseur' entre les 2 nombres
+    entiers a et b lien :
+    http://python.jpvweb.com/python/mesrecettespython/doku.php?id=pgcd_ppcm
+    
+    @param      a     Une valeur
+    @param      b     Une valeur
+    
+    @return     Le Plus Grand Commun Diviseur entre a et b
     """
     while b!=0:
         r=a%b
@@ -124,11 +145,27 @@ def pgcd(a,b):
     return a
 
 def bytes_inv(bts, modulo):
+    """
+    @brief      Trouve l'inverse d'un bytes dans Z_modulo
+    
+    @param      bts     Le bytes
+    @param      modulo  Le modulo
+    
+    @return      L'inverse du bytes dans Z_modulo
+    """
     val = bytes2int(bts)
 
     return inv(val, modulo)
 
 def inv(val, modulo):
+    """
+    @brief     Trouve l'inverse d'un entier dans Z_modulo
+    
+    @param      val     La valeur
+    @param      modulo  Le modulo
+    
+    @return     L'inverse de la valeur dans Z_modulo
+    """
     r, u, v = pgcde(val, modulo)
 
     if r == 1:
@@ -137,7 +174,14 @@ def inv(val, modulo):
         return None
 
 def exp_rapide(a, n):
-    """exponentiation rapide (calcul de a^n). Version itérative"""
+    """
+    exponentiation rapide (calcul de a^n). Version itérative
+    
+    @param      a     La base
+    @param      n     L'exposant
+    
+    @return     a^n
+    """
     b, m = a, n
     r = 1
     while m > 0:
@@ -148,6 +192,13 @@ def exp_rapide(a, n):
     return r 
 
 def fac(n):
+    """
+    @brief      Factorisation en facteur premier
+    
+    @param      n     La valeur à factoriser
+    
+    @return     tableau des facteurs premier
+    """
     step = lambda x: 1 + (x<<2) - ((x>>1)<<1)
     maxq = long(floor(sqrt(n)))
     d = 1
@@ -157,24 +208,16 @@ def fac(n):
         d += 1
     return q <= maxq and [q] + fac(n//q) or [n]
 
-# def factorize(val):
-#     global _known_primes
-#     factor = []
-#     while not is_prime(int(val)):
-#         # print (val)
-#         i = 0
-#         while val % _known_primes[i] != 0:
-#             i += 1
-#             if i == len(_known_primes):
-#                 _known_primes.extend([x for x in range(_known_primes[i-1] + 2, _known_primes[i-1]*10 + 1, 2) if is_prime(x)])
-#         factor.append(_known_primes[i])
-#         val =  int(val / _known_primes[i])
+#===============================================================================
 
-#     factor.append(int(val))
-#     return factor
-
-#=========================================================
 def getPrime(nb_bytes):
+    """
+    @brief      Génère un nombre premier de nb_bytes octets
+
+    @param      nb_bytes  Le nombre d'octet
+
+    @return     Le nombre premier
+    """
     depth = get_depth()
     print("{}getPrime: Generate a {} bytes long prime".format(depth*"\t",nb_bytes))
 
@@ -182,61 +225,42 @@ def getPrime(nb_bytes):
     i = 0
     while True:
         i += 1
-        # q = bytes2int(genKey(3, False))
         q = bytes2int(genKey(nb_bytes, False, i))
-        # print (key)
-        # print (is_prime(key))
         if is_prime(q):
             print ('')
             break
     return q
 
 def genKey(nb_bytes, print_key=True, i=1):
+    """
+    @brief      Génère une clé de nb_bytes octets
+    
+    @param      nb_bytes   Le nombre d'octet
+    @param      print_key  afficher la clé généré
+    @param      i          Le nombre d'itération
+    
+    @return     La clé généré en bytes
+    """
     depth = get_depth()
     print("{}genKey: Generate a {} bytes long random number. try {}".format(depth*"\t",nb_bytes, i), end="\r")
     while True:
         key = os.urandom(nb_bytes)
         if bytes2int(key) != 0:
             break
-    # print(key, end='\r')
-    # print (":".join("{:02x}".format(ord(c)) for c in rand)) # python2
     if print_key:
         key_hex = key.hex()
         print (':'.join(a+b for a,b in zip(key_hex[::2], key_hex[1::2])))
     return key
 
-def Schnorr_prime(nb_small, nb_big): # DEPRECIATED
-    depth = get_depth()
-    print("{}Schnorr_prime: Generate prime q".format(depth*"\t"))
-    q = getPrime(nb_small)
-
-    print("{}Schnorr_prime: Generate prime p".format(depth*"\t"))
-
-    p = 0
-    i = 1
-    # h = bytes2int(genKey(nb_big - nb_small, False, i))
-    h = bytes2int(genKey(nb_big , False, i))
-    while True:
-
-        # p = h * q + 1
-        p = h - ((h%(2*q) ) - 1)
-        # X-(X%(2*obj.q)-1)
-        if is_prime(p) and p != 1:
-            print ('')
-            break
-        else:
-            i += 1
-            # h = bytes2int(genKey(nb_big - nb_small, False, i))
-            h = bytes2int(genKey(nb_big , False, i))
-    # print(int2bytes(p,nb_big))
-    # bytesToString(int2bytes(p,nb_big))
-    # print (is_prime(q))
-    # print (is_prime(p))
-    # print (1 < h < p)
-    # print (p - q*h)
-    return q,p
-
 def Schnorr_group(nb_small, nb_big):
+    """
+    @brief      Génére un group de Schnorr
+    
+    @param      nb_small  Le nombre d'octes pour q
+    @param      nb_big    Le nombre d'octes pour p
+    
+    @return     Le groupe de schorr généré dans une classe DHParams
+    """
     depth = get_depth()
     print("{}Schnorr_group: Generate prime q".format(depth*"\t"))
     q = getPrime(nb_small)
@@ -269,6 +293,13 @@ def Schnorr_group(nb_small, nb_big):
     return DHParams(p,q,g)
 
 def parseKey(printed_key):
+    """
+    @brief      Fonction permetant de parser un clé en bytes du format suivant XX:XX:XX:XX:XX
+    
+    @param      printed_key  La clé a parser
+    
+    @return     La clé en bytes
+    """
     if type(re.match('^([0-9a-f]{2}:)*[0-9a-f]{2}$', printed_key)) is not None:
         hexa = rand_hex.replace(":", "")
         return binascii.unhexlify(hexa)
@@ -277,9 +308,20 @@ def parseKey(printed_key):
         return None
 
 def bytesToString(byt):
+    """
+    @brief      Affiche un bytes en str
+    
+    @param      byt   Le bytes à afficher
+    
+    """
     key_hex = byt.hex()
     print (':'.join(a+b for a,b in zip(key_hex[::2], key_hex[1::2])))
 
+#===========================================
+
+"""
+    Convertion utils
+"""
 
 def bin2hex(binStr):
     return binStr.hex()
@@ -293,6 +335,8 @@ def bytes2int(bts):
 def int2bytes(val, nb_bytes):
     return val.to_bytes(nb_bytes, byteorder='big')
 
+
+#===========================================
 
 """
 rotation binaire:
@@ -319,6 +363,12 @@ def bytes_ror(bts, r_bits):
     temp = bytes2int(bts)
     temp = ror(temp, r_bits , len(bts)*8)
     return int2bytes(temp, len(bts))
+
+
+#===========================================
+"""
+    Operation pour les Bytes
+"""
 
 def bytes_or_bytes(bts1, bts2):
     return int2bytes(bytes2int(bts1) | bytes2int(bts2), len(bts1))
@@ -353,6 +403,17 @@ Block cipher mode
 """
 
 def ECB(function, file_in, file_out, chunk_size, key):
+    """
+    @brief      Mode ECB: chiffre/dechiffre le fichier avec la fonction de
+                chiffrement et la clé passé en paramettre dans un autre fichier
+    
+    @param      function    La fonction de chiffrement
+    @param      file_in     Le fichier d'entré
+    @param      file_out    Le fichier de sortie
+    @param      chunk_size  La taille du bloc
+    @param      key         La clé en bytes
+    
+    """
     if not isinstance(key, bytes):
         raise TypeError("key must be set to bytes")
     with open(file_in, 'rb') as f:
@@ -364,10 +425,23 @@ def ECB(function, file_in, file_out, chunk_size, key):
         s.close()
 
 class CBC(object):
-    """docstring for CBC"""
+    """Classe pour le mode CBC"""
 
     @staticmethod
     def cipher(function, file_in, file_out, chunk_size, key, init_vector):
+        """
+        @brief      Mode CBC chiffrement: chiffre le fichier avec la fonction de
+                    chiffrement, la clé et le vectoeur initiale passé en
+                    paramettre dans un autre fichier
+        
+        @param      function    La fonction de chiffrement
+        @param      file_in     Le fichier d'entré
+        @param      file_out    Le fichier de sortie
+        @param      chunk_size  La taille du bloc
+        @param      key         La clé en bytes
+        @param      init_vector  Le vecteur initial
+        
+        """
         if not isinstance(init_vector, bytes):
             raise TypeError("init_vector must be set to bytes")
         if not isinstance(key, bytes):
@@ -388,6 +462,19 @@ class CBC(object):
 
     @staticmethod
     def decipher(function, file_in, file_out, chunk_size, key, init_vector):
+        """
+        @brief      Mode CBC déchiffrement: déchiffre le fichier avec la fonction de
+                    chiffrement, la clé et le vectoeur initiale passé en
+                    paramettre dans un autre fichier
+        
+        @param      function    La fonction de chiffrement
+        @param      file_in     Le fichier d'entré
+        @param      file_out    Le fichier de sortie
+        @param      chunk_size  La taille du bloc
+        @param      key         La clé en bytes
+        @param      init_vector  Le vecteur initial
+        
+        """
         if not isinstance(init_vector, bytes):
             raise TypeError("init_vector must be set to bytes")
         if not isinstance(key, bytes):
@@ -407,10 +494,23 @@ class CBC(object):
             s.close()
 
 class PCBC(object):
-    """docstring for PCBC"""
+    """Classe pour le mode PCBC"""
 
     @staticmethod
     def cipher(function, file_in, file_out, chunk_size, key, init_vector):
+        """
+        @brief      Mode PCBC chiffrement: chiffre le fichier avec la fonction
+                    de chiffrement, la clé et le vectoeur initiale passé en
+                    paramettre dans un autre fichier
+        
+        @param      function     La fonction de chiffrement
+        @param      file_in      Le fichier d'entré
+        @param      file_out     Le fichier de sortie
+        @param      chunk_size   La taille du bloc
+        @param      key          La clé en bytes
+        @param      init_vector  Le vecteur initial
+        
+        """
         if not isinstance(init_vector, bytes):
             raise TypeError("init_vector must be set to bytes")
         if not isinstance(key, bytes):
@@ -432,6 +532,19 @@ class PCBC(object):
 
     @staticmethod
     def decipher(function, file_in, file_out, chunk_size, key, init_vector):
+        """
+        @brief      Mode PCBC déchiffrement: déchiffre le fichier avec la
+                    fonction de chiffrement, la clé et le vectoeur initiale
+                    passé en paramettre dans un autre fichier
+        
+        @param      function     La fonction de chiffrement
+        @param      file_in      Le fichier d'entré
+        @param      file_out     Le fichier de sortie
+        @param      chunk_size   La taille du bloc
+        @param      key          La clé en bytes
+        @param      init_vector  Le vecteur initial
+        
+        """
         if not isinstance(init_vector, bytes):
             raise TypeError("init_vector must be set to bytes")
         if not isinstance(key, bytes):
@@ -450,3 +563,15 @@ class PCBC(object):
                 s.write(chunk_decyph)
                 last_chunk = bytes_xor_bytes(chunk, chunk_decyph)
             s.close()
+
+#===========================================
+"""
+    IO for yaml file
+"""
+def read_yaml(file):
+    with open(file, 'r') as infile:
+        return yaml.load(infile)
+
+def write_yaml(data, file):
+    with open(file, 'w') as outfile:
+        yaml.dump(data, outfile, default_flow_style=False)

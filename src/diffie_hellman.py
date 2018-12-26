@@ -7,35 +7,32 @@ import sys
 
 # https://www.baylon-industries.com/news/?p=1430
 # https://crypto.stackexchange.com/questions/9006/how-to-find-generator-g-in-a-cyclic-group
-ERASE_LINE = '\x1b[2K'
 def main ():
 
-	# DH_param, A, a = DH_gen_keys()
 	alice_key = DH_gen_keys()
-	# print (DH_param)
-	# print (A)
-	# print (a)
-	# print()
 	com_key_b, B, b =  DH_comm_estab_Bob(alice_key.param, alice_key.public_key)
-	# print (com_key_b)
-	# print (B)
-	# print (b)
-	# print()
-	com_key_a = DH_comm_estab_Alice(alice_key.param, B, alice_key.private_key)
+	com_key_a = DH_comm_estab_Alice(alice_key, B)
 
 	assert com_key_b == com_key_a
 	A_hex = int2bytes(com_key_a, 128)
-	print (A_hex)
-	
+	bytesToString(A_hex)
 
 
 def DH_gen_keys(lenth_q=64, lenth_p=128):
+	"""
+	@brief      Génère une clé assymétrique
+	
+	@param      lenth_q  Longueur en octes de q
+	@param      lenth_p  Longueur en octes de p
+	
+	@return     Un clé assymétrique (Classe Key)
+	"""
 	depth = get_depth()
 	print ("{}DH_gen_keys: function starting".format(depth*"\t"))
 	DH_param = Schnorr_group(lenth_q, lenth_p)
 	
 	print ("{}DH_gen_keys: generate private key".format(depth*"\t"))
-	private_key = random.randint (1, DH_param.q)
+	private_key = random.randint (2, DH_param.q)
 
 	print ("{}DH_gen_keys: generate public key".format(depth*"\t"))
 	public_key = pow(DH_param.g, private_key, DH_param.p)
@@ -43,49 +40,40 @@ def DH_gen_keys(lenth_q=64, lenth_p=128):
 	return Key(DH_param, public_key, private_key)
 
 def DH_comm_estab_Bob(DH_param, client_public_key):
-	private_key = random.randint (2, DH_param.q)
+	"""
+	@brief      Génère une clé privé et de communication
 	
-	pub_key = pow(DH_param.g, private_key, DH_param.p)
+	@param      DH_param           Les paramètres de la génération de clé
+	@param      client_public_key  La clé publique de l'interlocuteur
+	
+	@return     La clé de communication, publique et privé de bob
+	"""
+	depth = get_depth()
+	print ("{}DH_comm_estab_Bob: function starting".format(depth*"\t"))
 
+	print ("{}DH_comm_estab_Bob: generate private key".format(depth*"\t"))
+	private_key = random.randint (2, DH_param.q)
+
+	print ("{}DH_comm_estab_Bob: generate public key".format(depth*"\t"))
+	pub_key = pow(DH_param.g, private_key, DH_param.p)
+	
+	print ("{}DH_comm_estab_Bob: generate com key".format(depth*"\t"))
 	com_key = pow(client_public_key, private_key, DH_param.p)
 
 	return com_key, pub_key, private_key
 
-def DH_comm_estab_Alice(DH_param, server_pub_key, my_private_key):
-	return pow(server_pub_key, my_private_key, DH_param.p)
-
-
-###########################################
-
-def Diffie_Hellman(lenth_q=64, lenth_p=128): # DEPRECIATED
+def DH_comm_estab_Alice(my_key, server_pub_key):
+	"""
+	@brief      Génère la clé de communication du coté d'alice
+	
+	@param      my_key          Ma clé
+	@param      server_pub_key  La clé public du serveur
+	
+	@return     La clé de communication
+	"""
 	depth = get_depth()
-
-	print ("{}Diffie_Hellman: function starting".format(depth*"\t"))
-
-	q,p = Schnorr_prime(lenth_q,lenth_p)
-	# print ("q : {}".format(q))
-	# print ("p : {}".format(p))
-	print ("{}Diffie_Hellman: generate g".format(depth*"\t"))
-	g = 1
-	real_gen = False
-	# h = 2
-	expo = int((p-1)/q)
-	# print (expo)
-	while True :
-		h = random.randint (2, p-2)
-		g = pow (h, expo, p)
-		# if g!= 1:
-		# 	break
-		real_gen = (pow (g, q, p) == 1)
-		# sys.stdout.write(ERASE_LINE)
-		# print ("{}\t h: {}  real_gen : {}".format(depth*"\t", h, real_gen), end='\r')
-		# if g != 1 and real_gen:
-		if g != 1:
-			print("")
-			break
-		# else:
-		# 	h += 1
-	return DHParams(p,q,g)
+	print ("{}DH_comm_estab_Alice: generate com key".format(depth*"\t"))
+	return pow(server_pub_key, my_key.private_key, my_key.param.p)
 
 if __name__ == '__main__':
 	main()

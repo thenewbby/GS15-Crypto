@@ -7,9 +7,6 @@ from crypto_utils import *
 
 _NUM_ROUNDS = 8
 
-def idea_mul_bytes(bts1, bts2):
-    return int2bytes((bytes2int(bts1)*bytes2int(bts2)) % (exp_rapide(2,len(bts1)*8) + 1),len(bts1))
-
 def main():
 	key = int2bytes(0x2BD6459F82C5B300952C49104881FF48, 16)
 	plain = int2bytes(0xF129A6601EF62A47, 8)
@@ -31,23 +28,48 @@ def main():
 
 
 class IDEA(object):
-	"""docstring for IDEA"""
+	"""Classe pour le chiffrement IDEA"""
 
 	def __init__(self, key):
 		self.update_key(key)
 
 	def encrypt(self, chunk, key):
+		"""
+		@brief      Chiffre le bloc avec la clé passé en paramettre
+		
+		@param      self   L'object
+		@param      chunk  Le bloc
+		@param      key    La clé
+		
+		@return     Retourne le bloc chiffré
+		"""
 
 		if list(key) != self.key:
 			self.update_key(key)
 		return self.cipher(chunk, self.key_exanted)
 
 	def decrypt(self, chunk, key):
+		"""
+		@brief      Déchiffre le bloc avec la clé passé en paramettre
+		
+		@param      self   L'object
+		@param      chunk  Le bloc
+		@param      key    La clé
+		
+		@return     Retourne le bloc déchiffré
+		"""
 		if list(key) != self.key:
 			self.update_key(key)
 		return self.cipher(chunk, self.reversed_key)
 
 	def update_key(self, key):
+		"""
+		@brief      Mets à jours les clé interne
+		
+		@param      self  L'object
+		@param      key   La clé
+		
+		"""
 		self.key = list(key)
 		assert isinstance(self.key, list) and len(self.key) == 16
 		self.key_exanted = self.expand_key(key)
@@ -55,6 +77,14 @@ class IDEA(object):
 		
 	@staticmethod
 	def cipher(chunk, key_used):
+		"""
+		@brief      Chiffre ou déchiffre le bloc avec la clé passé en paramètre
+		
+		@param      chunk     Le bloc
+		@param      key_used  La clé
+		
+		@return     le bloc chiffré ou déchiffré
+		"""
 		chunk = list(chunk)
 
 		assert isinstance(chunk, list) and len(chunk) == 8
@@ -97,6 +127,14 @@ class IDEA(object):
 			z >> 8, z & 0xFF])
 
 	def expand_key(self, key):
+		"""
+		@brief      Expand la clé pour le chiffrement IDEA
+		
+		@param      self  L'object
+		@param      key   La clé
+		
+		@return     La clé étendue
+		"""
 		# Pack all key bytes into a single uint128
 		bigkey = 0
 		for b in key:
@@ -116,6 +154,13 @@ class IDEA(object):
 
 
 	def reverse_key(self):
+		"""
+		@brief      Inverse la clé pour le déchiffrement
+		
+		@param      self  L'object
+		
+		@return     La clé inversé
+		"""
 		assert isinstance(self.key_exanted, tuple) and len(self.key_exanted) % 6 == 4
 		result = []
 		result.append(_reciprocal(self.key_exanted[-4]))
