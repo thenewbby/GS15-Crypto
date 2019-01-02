@@ -21,14 +21,19 @@ class DHParams(object):
     """
     Classe regroupant les paramètre p, q et g
     """
-    def __init__(self, p, q, g):
+    def __init__(self, p, q, g, tup):
         self.p = p
         self.q = q
         self.g = g
+        self.lenth = tup
 
     def __repr__(self):
-        return "%s(p=%r, q=%r, g=%r)" % (
-            self.__class__.__name__, self.p, self.q, self.g)
+        return "%s(p=%r, q=%r, g=%r, lenth=%r)" % (
+            self.__class__.__name__, self.p, self.q, self.g, self.tup)
+
+    def __str__(self):
+        return "(p=%r, q=%r, g=%r)" % (
+            self.p, self.q, self.g)
 
 class Key(object):
     """
@@ -42,6 +47,10 @@ class Key(object):
     def __repr__(self):
         return "%s(param=%r, public_key=%r, private_key=%r)" % (
             self.__class__.__name__, self.param, self.public_key, self.private_key)
+
+    def __str__ (self):
+        return "Key:\n\tparam={}\n\tpublic_key={}\n\tprivate_key={}\n".format(
+            self.param, self.public_key, self.private_key)
         
 
 
@@ -49,14 +58,15 @@ class DSASignature(object):
     """
     Classe regroupant les paramètres, la clé public utilisé, r et s généré par DSA
     """
-    def __init__(self, params, Pkey, r, s):
+    def __init__(self, params, Pkey, r, s, msgs):
         self.param = params
         self.public_key = Pkey
         self.r = r
-        self.s = s   
+        self.s = s
+        self.msg = msgs
     def __repr__(self):
-        return "%s(param=%r, public_key=%r, r=%r, s=%r)" % (
-            self.__class__.__name__, self.param, self.public_key, self.r, self.s)
+        return "%s(param=%r, public_key=%r, r=%r, s=%r, msg=%r)" % (
+            self.__class__.__name__, self.param, self.public_key, self.r, self.s, self.msg)
 
 try: 
     long
@@ -290,7 +300,7 @@ def Schnorr_group(nb_small, nb_big):
         g = pow(h, r, p)
         if g != 1:
             break
-    return DHParams(p,q,g)
+    return DHParams(p,q,g, (nb_small, nb_big) )
 
 def parseKey(printed_key):
     """
@@ -402,7 +412,7 @@ def bytes_minus_bytes(bts1, bts2):
 Block cipher mode
 """
 
-def ECB(function, file_in, file_out, chunk_size, key):
+def ECB(function, file_in, file_out, chunk_size, key, init_vector=0):
     """
     @brief      Mode ECB: chiffre/dechiffre le fichier avec la fonction de
                 chiffrement et la clé passé en paramettre dans un autre fichier

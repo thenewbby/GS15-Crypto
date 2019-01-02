@@ -19,7 +19,7 @@ def main():
 	sign = DSA_sign(alice_key, msg)
 
 	print ("{}DSA: verify msg".format(depth*"\t"))
-	verif = DSA_verify(sign, msg)
+	verif = DSA_verify(sign)
 	assert verif
 
 
@@ -49,9 +49,9 @@ def DSA_sign(key, msg):
 			continue
 
 		s = (k_inv*(h + key.private_key*r)) % key.param.q
-	return DSASignature(key.param, key.public_key, r, s)
+	return DSASignature(key.param, key.public_key, r, s, msg.decode())
 
-def DSA_verify(DSA_sig, msg):
+def DSA_verify(DSA_sig):
 	"""
 	@brief      Vérifie la sigature du message
 	
@@ -66,7 +66,7 @@ def DSA_verify(DSA_sig, msg):
 	if not (1 <= DSA_sig.r < DSA_sig.param.q and 1 <= DSA_sig.s < DSA_sig.param.q):
 		return False
 
-	h = bytes2int(hashlib.sha256(msg).digest())
+	h = bytes2int(hashlib.sha256(DSA_sig.msg.encode('utf-8')).digest())
 
 	w = inv(DSA_sig.s, DSA_sig.param.q)
 

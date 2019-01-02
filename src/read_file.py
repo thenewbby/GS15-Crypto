@@ -25,6 +25,8 @@ def main():
 
     ECB(idea.encrypt, path, path_sec, chunkSize, key)
     ECB(idea.decrypt, path_sec, path_unsec, chunkSize, key)
+    # ECB(idea.encrypt, path, path_sec, chunkSize, key)
+    # ECB(idea.decrypt, path_sec, path_unsec, chunkSize, key)
 
     # CBC.cipher(idea.encrypt, path, path_sec, chunkSize, key, in_vect)
     # CBC.decipher(idea.decrypt, path_sec, path_unsec, chunkSize, key, in_vect)

@@ -10,8 +10,8 @@ import sys
 def main ():
 
 	alice_key = DH_gen_keys()
-	com_key_b, B, b =  DH_comm_estab_Bob(alice_key.param, alice_key.public_key)
-	com_key_a = DH_comm_estab_Alice(alice_key, B)
+	com_key_b, bob_key =  DH_comm_estab_Bob(alice_key.param, alice_key.public_key)
+	com_key_a = DH_comm_estab_Alice(alice_key, bob_key.public_key)
 
 	assert com_key_b == com_key_a
 	A_hex = int2bytes(com_key_a, 128)
@@ -60,7 +60,7 @@ def DH_comm_estab_Bob(DH_param, client_public_key):
 	print ("{}DH_comm_estab_Bob: generate com key".format(depth*"\t"))
 	com_key = pow(client_public_key, private_key, DH_param.p)
 
-	return com_key, pub_key, private_key
+	return com_key, Key(DH_param,pub_key, private_key)
 
 def DH_comm_estab_Alice(my_key, server_pub_key):
 	"""

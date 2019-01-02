@@ -17,14 +17,14 @@ def main():
 
 	print ("encrypt: ")
 
-	print (idea.encrypt(plain))
+	print (idea.encrypt(plain, key))
 	print (cip)
-	assert idea.encrypt(plain) == cip
+	assert idea.encrypt(plain, key) == cip
 
 	print ("\ndecrypt: ")
-	print (idea.decrypt(cip))
+	print (idea.decrypt(cip, key))
 	print (plain)
-	assert idea.decrypt(cip) == plain
+	assert idea.decrypt(cip, key) == plain
 
 
 class IDEA(object):
@@ -71,8 +71,8 @@ class IDEA(object):
 		
 		"""
 		self.key = list(key)
-		assert isinstance(self.key, list) and len(self.key) == 16
-		self.key_exanted = self.expand_key(key)
+		assert isinstance(self.key, list) and len(self.key) >= 16
+		self.key_exanted = self.expand_key(key[:16])
 		self.reversed_key = self.reverse_key()
 		
 	@staticmethod
