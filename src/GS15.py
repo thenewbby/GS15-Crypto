@@ -105,14 +105,14 @@ def gen_key():
 		elif var == 1:
 			#  write get file
 			if alice_key:
-				name = input("Le nom du fichier: ")
+				name = input("Le nom du fichier (sans l'extension): ../keys/")
 				write_yaml(alice_key, "../keys/"+name+".yml")
 			else:
 				print("Pas de clé à écrire")
 			
 		elif var == 2:
 			#  load get file
-			name = input("Le nom du fichier: ")
+			name = input("Le nom du fichier (sans l'extension): ../keys/")
 			alice_key = read_yaml("../keys/"+name+".yml")
 		elif var == 3:
 			break
@@ -122,9 +122,9 @@ def gen_key():
 
 def cipher(): # ToDo Init_vector
 
-	file_in = input("fichier d'entré: ")
+	file_in = input("fichier d'entré: ../files/")
 	file_in = "../files/"+file_in
-	file_out = input("fichier de sortie: ")
+	file_out = input("fichier de sortie: ../files/")
 	file_out = "../files/"+file_out
 
 	global alice_key
@@ -241,13 +241,13 @@ def dsa():
 
 				sign = DSA_sign(alice_key, msg.encode('utf-8'))
 
-				name = input("le nom du fichier: ")
+				name = input("le nom du fichier (sans l'extension): ../sig/")
 				write_yaml(sign, "../sig/"+name+".yml" )
 			else :
 				print("Pas de clé à utiliser")
 
 		elif var == 1:
-			name = input("le nom du fichier: ")
+			name = input("le nom du fichier (sans l'extension): ../sig/")
 			sign = read_yaml("../sig/"+name+".yml")
 
 			if DSA_verify(sign):
