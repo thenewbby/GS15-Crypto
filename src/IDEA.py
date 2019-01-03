@@ -1,6 +1,29 @@
 #!/usr/bin/env python3
 
-# import idea
+# BASED ON OTHER PROJECT
+# 
+# The IDEA (International Data Encryption Algorithm) block cipher.
+# 
+# Copyright (c) 2018 Project Nayuki. (MIT License)
+# https://www.nayuki.io/page/cryptographic-primitives-in-plain-python
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+# the Software, and to permit persons to whom the Software is furnished to do so,
+# subject to the following conditions:
+# - The above copyright notice and this permission notice shall be included in
+#   all copies or substantial portions of the Software.
+# - The Software is provided "as is", without warranty of any kind, express or
+#   implied, including but not limited to the warranties of merchantability,
+#   fitness for a particular purpose and noninfringement. In no event shall the
+#   authors or copyright holders be liable for any claim, damages or other
+#   liability, whether in an action of contract, tort or otherwise, arising from,
+#   out of or in connection with the Software or the use or other dealings in the
+#   Software.
+
+
 from crypto_utils import *
 
 # ---- Numerical constants/tables ----
@@ -97,7 +120,6 @@ class IDEA(object):
 		
 		# Perform 8 rounds of encryption/decryption
 		for i in range(_NUM_ROUNDS):
-			# if printdebug: print("    Round {}: chunk = [{:04X} {:04X} {:04X} {:04X}]".format(i, w, x, y, z))
 			j = i * 6
 			w = _multiply(w, key_used[j + 0])
 			x = _add(x, key_used[j + 1])
@@ -187,7 +209,7 @@ class IDEA(object):
 
 # ---- Private arithmetic functions ----
 
-# Returns x + y modulo 2^16. Inputs and output are uint16. Only used by _crypt().
+# Returns x + y modulo 2^16. Inputs and output are uint16. Only used by cipher().
 def _add(x, y):
 	assert 0 <= x <= 0xFFFF
 	assert 0 <= y <= 0xFFFF
@@ -195,7 +217,7 @@ def _add(x, y):
 
 
 # Returns x * y modulo (2^16 + 1), where 0x0000 is treated as 0x10000.
-# Inputs and output are uint16. Note that 2^16 + 1 is prime. Only used by _crypt().
+# Inputs and output are uint16. Note that 2^16 + 1 is prime. Only used by cipher().
 def _multiply(x, y):
 	assert 0 <= x <= 0xFFFF
 	assert 0 <= y <= 0xFFFF
@@ -211,14 +233,14 @@ def _multiply(x, y):
 
 
 # Returns the additive inverse of x modulo 2^16.
-# Input and output are uint16. Only used by _invert_key_schedule().
+# Input and output are uint16. Only used by reverse_key().
 def _negate(x):
 	assert 0 <= x <= 0xFFFF
 	return (-x) & 0xFFFF
 
 
 # Returns the multiplicative inverse of x modulo (2^16 + 1), where 0x0000 is
-# treated as 0x10000. Input and output are uint16. Only used by _invert_key_schedule().
+# treated as 0x10000. Input and output are uint16. Only used by reverse_key().
 def _reciprocal(x):
 	assert 0 <= x <= 0xFFFF
 	if x == 0:
