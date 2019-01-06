@@ -197,7 +197,15 @@ def cipher(): # ToDo Init_vector
 				mode = mode.decipher
 				dechiffre = 1
 			else :
-				print("\nMAUVAISE ENTREE")	
+				print("\nMAUVAISE ENTREE")
+
+		while init_vector is None:
+			vect = eval(input("vecteur initial (entier entre 0 et 18446744073709551615): "))
+			if 0 <= vect and vect <= 18446744073709551615:
+				init_vector = int2bytes(vect, 8)
+			else :
+				print("wrong input")
+
 
 		if dechiffre:
 			mode(function.decipher, file_in, file_out, 8, key, init_vector)
