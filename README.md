@@ -37,6 +37,18 @@ Nous l'avons développé par ce que nous pouvions utiliser les mêmes fonctions 
 Dans un premier temps, nous avons découpé la génération d'un groupe de Schnorr en deux fonctions. La première générée q et p, et la seconde trouvée le générateur g dans Z_q et Z_p. Cependant, lors de la signature, nous ne trouvons pas de générateur dans Z_q et Z_p en même temps. En regroupant les deux fonctions, nous avons pu résoudre ce problème. Le souci vient sûrement d'un mauvais passage d'argument entre les deux fonctions.
 
 
+# Problème global pendant le projet
+
+L'un des plus grands soucis que nous avons eu pendant ce projet, est le manque d'outils pour manipuler les suites d'octets en python. Nous sommes obligé de les transformer en entier pour pouvoir appliqué des fonctions binaire tel que le XOR ou le décalage de bit. De plus, il n'est pas possible de demander à python de bloquer la valeur maximale d'un entier, ce qui est un point positif comme un point négatif. Nous avons développé des outils permettant la manipulation de suites d'octets, que nous n'avons pas utiliser pour le major partie pour se rabattre sur les outils déjà présent avec les entiers.
+
+Pour plus de simplicité, nous avons mis la clé publique avec la clé privée, ce qui est une faute grave. Nous l'avons fait tout de même dans le cadre d'un exercice pédagogique.
+
+# Piste d'amélioration
+Tout d'abord, nous pouvons grandement améliorer l'interface utilisateur. Il est beaucoup trop archaïque.
+Ensuite, il est possible de mieux gérer les clés publiques et privées pour être plus proche de la réalité.
+Enfin, nous pouvons essayer d'optimiser le système. Nous prenons beaucoup de temps pour générer une clé asymétrique par ce que nous faisons beaucoup de test aléatoire.
+
+
 # How To
 
 La structure du projet:
